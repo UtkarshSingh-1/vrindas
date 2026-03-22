@@ -2,10 +2,14 @@
     "name": "vrindas-root",
     "version": "1.0.0",
     "private": true,
+    "workspaces": [
+        "app",
+        "server"
+    ],
     "scripts": {
         "build": "cd app && npx vite build",
-        "dev": "concurrently \"cd app && npm run dev\" \"cd server && npm run dev\"",
-        "install-all": "npm install && cd app && npm install && cd ../server && npm install"
+        "install-all": "npm install",
+        "dev": "concurrently \"npm run dev -w app\" \"npm run dev -w server\""
     },
     "devDependencies": {
         "concurrently": "^8.2.2"
