@@ -89,7 +89,7 @@ function InvoiceModal({ order, onClose }: { order: Order; onClose: () => void })
                             </div>
                             <div className="bg-gray-50 rounded-xl p-3">
                                 <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Order Info</p>
-                                <p className="text-sm"><span className="text-gray-500">Method:</span> <strong>{order.paymentMethod === 'cod' ? 'Cash' : 'Online'}</strong></p>
+                                <p className="text-sm"><span className="text-gray-500">Method:</span> <strong>{order.paymentMethod === 'cod' ? 'Cash' : 'Online (Razorpay)'}</strong></p>
                                 <p className="text-sm"><span className="text-gray-500">Status:</span> <strong className="capitalize">{order.status.replace(/_/g, ' ')}</strong></p>
                             </div>
                         </div>
@@ -200,7 +200,7 @@ function OrderDetailModal({ order, onClose }: { order: Order; onClose: () => voi
                         <div className="border-t border-burgundy/20 pt-2 flex justify-between font-bold text-burgundy">
                             <span>Total</span><span>{formatCurrency(order.totalAmount)}</span>
                         </div>
-                        <p className="text-xs text-gray-500">Payment: <strong>{order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online'}</strong> · <span className={order.paymentStatus === 'completed' ? 'text-green-600 font-semibold' : 'text-orange-600 font-semibold'}>{order.paymentStatus}</span></p>
+                        <p className="text-xs text-gray-500">Payment: <strong>{order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online (Razorpay)'}</strong> · <span className={order.paymentStatus === 'completed' ? 'text-green-600 font-semibold' : 'text-orange-600 font-semibold'}>{order.paymentStatus}</span></p>
                     </div>
                 </div>
             </motion.div>

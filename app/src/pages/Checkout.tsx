@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { ChevronLeft, CheckCircle2, ShoppingBag, MapPin, Utensils } from 'lucide-react';
+import { ChevronLeft, CheckCircle2, ShoppingBag, MapPin, Utensils, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { createOrder } from '@/lib/api';
 
@@ -28,6 +28,7 @@ export default function Checkout() {
         time: 'ASAP',
         paymentMethod: 'cash',
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // If cart is empty, go back
     if (items.length === 0 && step !== 3) {
@@ -39,7 +40,7 @@ export default function Checkout() {
         dispatch(setOrderMode(val));
     };
 
-    const submitOrder = (e: React.FormEvent) => {
+    const submitOrder = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!orderMode) {
             toast.error('Please select an order type (Dine-in, Pickup, or Delivery)');
@@ -54,6 +55,13 @@ export default function Checkout() {
         if (orderMode === 'dine-in' && !manualTableNumber) {
             toast.error('Please enter your table number.');
             return;
+        }
+
+        setIsSubmitting(true);
+
+        // Simulation delay for online payment
+        if (formData.paymentMethod === 'online') {
+            await new Promise(resolve => setTimeout(resolve, 2000));
         }
 
         // Process order success
@@ -80,11 +88,15 @@ export default function Checkout() {
 
         dispatch(addOrder(newOrder));
 
-        // Persist to Neon DB (non-blocking — UI proceeds even if this fails)
-        createOrder({ ...newOrder, orderMode: orderMode || undefined, tableNumber: manualTableNumber || undefined } as any)
-            .then(() => console.log('Order saved to DB:', newOrderId))
-            .catch(err => console.warn('DB save skipped (server may not be running):', err.message));
+        // Persist to Neon DB
+        try {
+            await createOrder({ ...newOrder, orderMode: orderMode || undefined, tableNumber: manualTableNumber || undefined } as any);
+            console.log('Order saved to DB:', newOrderId);
+        } catch (err: any) {
+            console.warn('DB save skipped:', err.message);
+        }
 
+        setIsSubmitting(false);
         setStep(3);
         dispatch(clearCart());
         window.scrollTo(0, 0);
@@ -273,9 +285,23 @@ export default function Checkout() {
                                     </RadioGroup>
                                 </div>
 
-                                <Button type="submit" size="lg" className="w-full h-14 text-lg bg-burgundy hover:bg-burgundy/90 flex justify-between px-6 rounded-full mt-4">
-                                    <span>{formData.paymentMethod === 'online' ? 'Proceed to Pay' : 'Confirm Order'}</span>
-                                    <span>₹{totalAmount}</span>
+                                <Button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    size="lg"
+                                    className="w-full h-14 text-lg bg-burgundy hover:bg-burgundy/90 flex justify-between px-6 rounded-full mt-4 disabled:opacity-70 transition-all shadow-lg"
+                                >
+                                    <span>
+                                        {isSubmitting ? (
+                                            <span className="flex items-center gap-2">
+                                                <RefreshCw className="w-5 h-5 animate-spin" />
+                                                Processing...
+                                            </span>
+                                        ) : (
+                                            formData.paymentMethod === 'online' ? 'Proceed to Pay' : 'Confirm Order'
+                                        )}
+                                    </span>
+                                    {!isSubmitting && <span>₹{totalAmount}</span>}
                                 </Button>
                             </form>
                         </motion.div>
