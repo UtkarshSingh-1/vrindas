@@ -2,14 +2,15 @@
     "name": "vrindas-root",
     "version": "1.0.0",
     "private": true,
-    "workspaces": [
-        "app",
-        "server"
-    ],
     "scripts": {
         "build": "cd app && npx vite build",
-        "install-all": "npm install",
-        "dev": "concurrently \"npm run dev -w app\" \"npm run dev -w server\""
+        "dev": "concurrently \"npm run dev --prefix app\" \"node --watch server/index.js\""
+    },
+    "dependencies": {
+        "express": "^4.21.2",
+        "pg": "^8.11.3",
+        "cors": "^2.8.5",
+        "dotenv": "^16.3.1"
     },
     "devDependencies": {
         "concurrently": "^8.2.2"
