@@ -73,9 +73,9 @@ export default function Checkout() {
             deliveryCharge: orderMode === 'delivery' ? 40 : 0,
             gstAmount: Math.round(totalAmount * 0.05),
             status: 'pending',
-            paymentMethod: formData.paymentMethod as 'cod' | 'razorpay',
+            paymentMethod: formData.paymentMethod === 'cash' ? 'cod' : 'razorpay',
             paymentStatus: formData.paymentMethod === 'cash' ? 'pending' : 'completed',
-            createdAt: new Date().toISOString().split('T')[0]
+            createdAt: new Date().toISOString()
         };
 
         dispatch(addOrder(newOrder));

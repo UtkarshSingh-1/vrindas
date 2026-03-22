@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Search, Eye, FileText, X, Printer } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Eye, FileText, X, Printer, RefreshCw } from 'lucide-react';
 import type { Order, OrderStatus } from '@/types';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateOrderStatus } from '@/store/ordersSlice';
+import { updateOrderStatus, setOrders } from '@/store/ordersSlice';
 import type { RootState } from '@/store';
 import { motion, AnimatePresence } from 'framer-motion';
-import { updateOrderStatusAPI } from '@/lib/api';
+import { updateOrderStatusAPI, fetchOrders } from '@/lib/api';
 
 const GSTIN = '09AABFV1234A1Z5';
 const FSSAI_NO = '10020042013000';
@@ -215,6 +215,27 @@ export default function OrderManagement() {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewOrder, setViewOrder] = useState<Order | null>(null);
     const [invoiceOrder, setInvoiceOrder] = useState<Order | null>(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const refreshOrders = async () => {
+        setIsRefreshing(true);
+        try {
+            const newOrders = await fetchOrders();
+            if (newOrders && newOrders.length > 0) {
+                dispatch(setOrders(newOrders));
+            }
+        } catch (err) {
+            console.warn('Failed to refresh orders:', err);
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
+
+    // Auto-poll every 15 seconds
+    useEffect(() => {
+        const interval = setInterval(refreshOrders, 15000);
+        return () => clearInterval(interval);
+    }, []);
 
     const filteredOrders = orders.filter(order =>
         order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -240,7 +261,17 @@ export default function OrderManagement() {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800">Order Management</h2>
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-800">Order Management</h2>
+                <button
+                    onClick={refreshOrders}
+                    disabled={isRefreshing}
+                    className="flex items-center gap-2 px-4 py-2 bg-burgundy rounded-xl text-white font-semibold hover:bg-burgundy/90 disabled:opacity-50 transition-all shadow-sm"
+                >
+                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    {isRefreshing ? 'Refreshing...' : 'Refresh'}
+                </button>
+            </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-4 border-b border-gray-100 flex items-center gap-2">
