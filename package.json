@@ -2,8 +2,12 @@
     "name": "vrindas-root",
     "version": "1.0.0",
     "private": true,
+    "workspaces": [
+        "app",
+        "server"
+    ],
     "scripts": {
-        "build": "cd app && npx vite build",
+        "build": "cd app && npm install && npx vite build",
         "dev": "concurrently \"npm run dev --prefix app\" \"node --watch server/index.js\""
     },
     "dependencies": {
