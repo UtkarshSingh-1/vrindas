@@ -88,6 +88,8 @@ export default function AdminLayout() {
         );
     }
 
+    const currentNavItem = navItems.find((item) => item.path === location.pathname) ?? navItems[0];
+
     return (
         <motion.main initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen bg-cream flex flex-col lg:flex-row">
             {/* Sidebar */}
@@ -111,13 +113,43 @@ export default function AdminLayout() {
             </div>
 
             {/* Mobile Topbar */}
-            <div className="lg:hidden bg-burgundy p-4 flex items-center justify-between sticky top-0 z-20">
-                <h1 className="text-xl font-display font-bold text-xanthous">VRINDAS Admin</h1>
-                <button onClick={handleLogout} className="text-white/70 hover:text-white"><LogOut className="w-5 h-5" /></button>
+            <div className="lg:hidden sticky top-0 z-20 bg-burgundy shadow-lg">
+                <div className="p-4 flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                        <h1 className="text-xl font-display font-bold text-xanthous">VRINDAS Admin</h1>
+                        <p className="text-xs text-white/70 truncate">{currentNavItem.label}</p>
+                    </div>
+                    <button
+                        onClick={handleLogout}
+                        className="shrink-0 rounded-lg p-2 text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+                        aria-label="Logout from admin"
+                    >
+                        <LogOut className="w-5 h-5" />
+                    </button>
+                </div>
+
+                <nav className="px-4 pb-4 overflow-x-auto">
+                    <div className="flex gap-2 min-w-max">
+                        {navItems.map((item) => (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors ${
+                                    location.pathname === item.path
+                                        ? 'bg-xanthous text-black'
+                                        : 'bg-white/10 text-white/80 hover:bg-white/15 hover:text-white'
+                                }`}
+                            >
+                                <item.icon className="w-4 h-4" />
+                                {item.label}
+                            </Link>
+                        ))}
+                    </div>
+                </nav>
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 lg:ml-64 p-4 lg:p-8 overflow-y-auto">
+            <div className="flex-1 min-w-0 lg:ml-64 p-4 lg:p-8 overflow-y-auto overflow-x-hidden">
                 <Outlet context={{ menuList }} />
             </div>
         </motion.main>
